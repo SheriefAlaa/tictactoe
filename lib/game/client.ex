@@ -3,22 +3,29 @@ defmodule TicTacToe.Game.Client do
   Game CLI client.
   """
   require Logger
+  alias TicTacToe.Game.Board
   alias TicTacToe.Game.Server
   alias TicTacToe.Game.Supervisor
 
-  def start_link(), do: GenServer.start_link(Server, [])
+  def start_link(), do: GenServer.start_link(Server, Board.new())
 
   @doc """
   Starts a new game server under the DynamicSupervisor to oversee.
   Will only restart processes that crashed abnormally.
+
+  Will enforce using strings over atoms as the latter is garbage collected.
   """
-  def new_game_server(),
-    do:
-      DynamicSupervisor.start_child(Supervisor, %{
-        id: Server,
-        start: {__MODULE__, :start_link, []},
-        restart: :transient
-      })
+  def new_game_server(name) when is_binary(name) do
+    DynamicSupervisor.start_child(
+      Supervisor,
+      {Server, name: {:via, Registry, {TicTacToe.ServerRegistry, name}}}
+    )
+  end
+
+  def new_game_server(_) do
+    Logger.error("You can only use strings to start a new server.")
+    {:error, :invalid_param}
+  end
 
   @doc """
   Quit a game
@@ -50,4 +57,22 @@ defmodule TicTacToe.Game.Client do
       true
   """
   def crash(pid), do: Process.exit(pid, :kill)
+
+  @doc """
+  Get a game pid from Elixir.Registry using a string
+  """
+  def get_pid(game_name) when is_binary(game_name) do
+    result = Registry.lookup(TicTacToe.ServerRegistry, game_name)
+    get_pid(result)
+  end
+
+  def get_pid(result) when is_list(result) and length(result) == 1,
+    do: result |> hd() |> elem(0)
+
+  def get_pid(result) when is_list(result) and length(result) == 0, do: nil
+
+  def get_pid(_) do
+    Logger.error("Game name are strictly strings. Please enter a string.")
+    {:error, :invalid_param}
+  end
 end

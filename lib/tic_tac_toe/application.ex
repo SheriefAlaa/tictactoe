@@ -6,7 +6,11 @@ defmodule TicTacToe.Application do
       if Mix.env() == :test do
         []
       else
-        [TicTacToe.Game.Supervisor]
+        [
+          # If we link processes' pids to strings/atoms
+          {Registry, keys: :unique, name: TicTacToe.ServerRegistry},
+          TicTacToe.Game.Supervisor
+        ]
       end
 
     opts = [strategy: :one_for_one, name: TicTacToe.Supervisor]

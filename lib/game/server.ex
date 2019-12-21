@@ -2,11 +2,13 @@ defmodule TicTacToe.Game.Server do
   @moduledoc """
   Game server callbacks module.
   """
-  use GenServer
+  use GenServer, restart: :transient
 
   require Logger
 
   alias TicTacToe.Game.Board
+
+  def start_link(opts), do: GenServer.start_link(__MODULE__, Board.new(), opts)
 
   @doc """
   GenServer specific callback necessary for state init.
