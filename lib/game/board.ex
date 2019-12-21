@@ -3,17 +3,17 @@ defmodule TicTacToe.Game.Board do
   Game board struct and methods.
   """
 
-  defstruct winner: nil,
-            next_turn: nil,
-            finished?: false,
-            started: false,
-            places: nil
+  alias TicTacToe.Game.State
+
+  defstruct name: nil,
+            state: nil
 
   @doc """
   Returns a new Board
   """
-  def new(),
+  def new(name),
     do: %__MODULE__{
-      places: Enum.map(1..9, fn _ -> nil end)
+      name: name,
+      state: State.new(),
     }
 end

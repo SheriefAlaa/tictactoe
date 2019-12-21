@@ -6,9 +6,31 @@ defmodule TicTacToe.Game.Server do
 
   require Logger
 
-  alias TicTacToe.Game.Board
+  alias TicTacToe.Game.{Board, Cache}
 
-  def start_link(opts), do: GenServer.start_link(__MODULE__, Board.new(), opts)
+  def start_link(opts) do
+    board =
+      opts
+      |> get_name()
+      |> Board.new()
+
+    case Cache.lookup(board.name) do
+      {:ok, {_, old_state}} ->
+        Logger.info("Recovered a process from a crash!")
+        GenServer.start_link(__MODULE__, old_state, opts)
+
+      {:error, :not_found} ->
+        Cache.add(board.name, board)
+        Logger.info("Created a new game board.")
+        GenServer.start_link(__MODULE__, board, opts)
+
+      {:error, :more_than_one} ->
+        Logger.error(
+          "Seems ETS has more than one state for this process name: #{inspect(board.name)}"
+        )
+        GenServer.start_link(__MODULE__, board, opts)
+    end
+  end
 
   @doc """
   GenServer specific callback necessary for state init.
@@ -20,29 +42,21 @@ defmodule TicTacToe.Game.Server do
     {:ok, state}
   end
 
-  @doc """
-  New game sync callback.
-  """
-  @impl true
-  def handle_call(:new_game, _from, _state) do
-    state = Board.new()
-    {:reply, state, state}
-  end
-
   @impl true
   def handle_info({:EXIT, pid, :normal}, _state) do
     Logger.info("Game process #{inspect(pid)} exited cleanly.")
     {:stop, :shutdown, nil}
   end
 
-  def handle_info(msg, _state) do
-    Logger.info("Received abnormal message: #{inspect(msg)}")
-    {:stop, nil, nil}
-  end
-
   @impl true
   def terminate(reason, state) do
     Logger.warn("Game server exited. Reason: #{inspect(reason)}")
+    Cache.delete(state.name)
     {reason, state}
+  end
+
+  defp get_name(opts) do
+    {:start, {TicTacToe.Game.Server, :start_link, [name]}} = List.keyfind(opts, :start, 0)
+    name
   end
 end

@@ -1,6 +1,8 @@
 defmodule TicTacToe.Game.Supervisor do
   use DynamicSupervisor
 
+  alias TicTacToe.Game.Cache
+
   require Logger
 
   @doc """
@@ -11,6 +13,9 @@ defmodule TicTacToe.Game.Supervisor do
     case DynamicSupervisor.start_link(__MODULE__, nil, name: __MODULE__) do
       {:ok, pid} ->
         Logger.info("Started the game's DynamicSupervisor #{inspect(pid)} ")
+
+        Cache.create_games_table()
+
         {:ok, pid}
 
       {:error, reason} ->

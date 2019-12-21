@@ -3,11 +3,7 @@ defmodule TicTacToe.Game.Client do
   Game CLI client.
   """
   require Logger
-  alias TicTacToe.Game.Board
-  alias TicTacToe.Game.Server
-  alias TicTacToe.Game.Supervisor
-
-  def start_link(), do: GenServer.start_link(Server, Board.new())
+  alias TicTacToe.Game.{Server, Supervisor}
 
   @doc """
   Starts a new game server under the DynamicSupervisor to oversee.
@@ -18,7 +14,9 @@ defmodule TicTacToe.Game.Client do
   def new_game_server(name) when is_binary(name) do
     DynamicSupervisor.start_child(
       Supervisor,
-      {Server, name: {:via, Registry, {TicTacToe.ServerRegistry, name}}}
+      {Server,
+       name: {:via, Registry, {TicTacToe.ServerRegistry, name}},
+       start: {Server, :start_link, [name]}}
     )
   end
 
