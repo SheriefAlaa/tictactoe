@@ -2,7 +2,7 @@ defmodule TicTacToeTest.Game.ServerTest do
   use ExUnit.Case
   @moduletag capture_log: true
 
-  alias TicTacToe.Game.{Supervisor, Server, Cache}
+  alias TicTacToe.Game.{Supervisor, Server}
 
   setup do
     ExUnit.Callbacks.start_supervised!(
