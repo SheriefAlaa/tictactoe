@@ -7,7 +7,7 @@ defmodule TicTacToeTest.Game.BoardTest do
     test "new/0 will return a new game board struct" do
       name = "sherief"
       assert %Board{name: ^name, state: state} = Board.new(name)
-      assert length(state.places) == 9
+      assert length(state.placements) == 9
     end
   end
 end
