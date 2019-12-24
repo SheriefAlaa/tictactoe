@@ -3,6 +3,9 @@ defmodule TicTacToe.Game.State do
   Game State struct and methods.
   """
 
+  @allowed_winners [:x, :o]
+  @allowed_next_turn @allowed_winners
+
   defstruct winner: nil,
             next_turn: nil,
             finished?: false,
