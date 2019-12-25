@@ -22,12 +22,17 @@ defmodule TicTacToe.Game.Server do
       {:error, :not_found} ->
         Cache.add(board.name, board)
         Logger.info("Created a new game board.")
+        Logger.info("You can play now by using Client.play(server, place, player_symbol) ")
+        Logger.info("server: can be pid or string (server name).")
+        Logger.info("place: must be a number on the game board (from 0 to 8)")
+        Logger.info("player_symbol: is either :x or :o")
         GenServer.start_link(__MODULE__, board, opts)
 
       {:error, :more_than_one} ->
         Logger.error(
           "Seems ETS has more than one state for this process name: #{inspect(board.name)}"
         )
+
         GenServer.start_link(__MODULE__, board, opts)
     end
   end
@@ -41,6 +46,14 @@ defmodule TicTacToe.Game.Server do
     Process.flag(:trap_exit, true)
     {:ok, state}
   end
+
+  @impl true
+  def handle_call({:alter_state, new_board}, _from, state) do
+    Cache.add(state.name, new_board)
+    {:reply, new_board, new_board}
+  end
+
+  def handle_call(:get_state, _from, state), do: {:reply, state, state}
 
   @impl true
   def handle_info({:EXIT, pid, :normal}, _state) do

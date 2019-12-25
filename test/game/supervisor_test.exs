@@ -27,7 +27,7 @@ defmodule TicTacToeTest.Game.SupervisorTest do
     {:ok, server} = Client.new_game_server("sherief")
     assert length(Supervisor.list_children()) == 1
     assert [{_, ^server, _, _}] = Supervisor.list_children()
-    assert server == Client.get_pid("sherief")
+    assert {:ok, server} == Client.get_pid("sherief")
     Client.quit(server)
   end
 

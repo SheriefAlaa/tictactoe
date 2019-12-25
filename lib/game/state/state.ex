@@ -73,12 +73,6 @@ defmodule TicTacToe.Game.State do
   def all_placements_full?(%__MODULE__{placements: placements}),
     do: !Enum.member?(placements, nil)
 
-  def get_next_turn(%__MODULE__{next_turn: next_turn}) when is_nil(next_turn),
-    do: :any
-
-  def get_next_turn(%__MODULE__{next_turn: next_turn}) when not is_nil(next_turn),
-    do: next_turn
-
   def game_won?(%__MODULE__{finished?: finished}), do: finished
 
   def get_winner(%__MODULE__{winner: winner}), do: winner

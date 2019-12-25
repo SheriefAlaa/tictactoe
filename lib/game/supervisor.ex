@@ -13,7 +13,9 @@ defmodule TicTacToe.Game.Supervisor do
     case DynamicSupervisor.start_link(__MODULE__, nil, name: __MODULE__) do
       {:ok, pid} ->
         Logger.info("Started the game's DynamicSupervisor #{inspect(pid)} ")
-
+        Logger.info("You can now do: ")
+        Logger.info("alias TicTacToe.Game.Client")
+        Logger.info("{:ok, server} = Client.new_game_server(\"sherief\")")
         Cache.create_games_table()
 
         {:ok, pid}
