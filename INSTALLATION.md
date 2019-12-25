@@ -1,6 +1,3 @@
-## Install asdf-v using a script (TODO):
-    ./setup.sh
-
 ## How to manually install asdf-vm:
 
 First of all you will need to have asdf-vm, a CLI tool that allows
