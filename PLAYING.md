@@ -6,6 +6,8 @@ The game uses a Logger to make your life easier navigating the game, but we deci
   iex -S mix
   alias TicTacToe.Game.Client
   {:ok, server_pid} = Client.new_game_server("game_1")
+  # First move on board using Client.play(server_pid_or_name, place, players_symbol)
+  Client.play(server, 0, :x)
   ```
 
 ## How to display the game board:
